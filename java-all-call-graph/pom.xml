@@ -10,18 +10,19 @@
     <description>code-mesh-resolver-java</description>
 
     <properties>
-        <upstream.version>3.0.1</upstream.version>
+        <upstream.version>3.0.2</upstream.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
-        <java.callgraph.version>3.0.0</java.callgraph.version>
+        <java.callgraph.version>3.0.4</java.callgraph.version>
         <spring.version>5.3.39</spring.version>
-        <ant.version>1.10.9</ant.version>
+        <ant.version>1.10.15</ant.version>
         <commons.lang3.version>3.17.0</commons.lang3.version>
         <commons.io.version>2.14.0</commons.io.version>
-        <commons.compress.version>1.26.0</commons.compress.version>
+        <commons.compress.version>1.27.1</commons.compress.version>
+        <commons.chain.version>1.2</commons.chain.version>
         <druid.version>1.2.15</druid.version>
         <mysql.version>8.4.0</mysql.version>
         <h2.version>2.2.220</h2.version>
@@ -254,6 +255,13 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-chain</groupId>
+            <artifactId>commons-chain</artifactId>
+            <version>${commons.chain.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
