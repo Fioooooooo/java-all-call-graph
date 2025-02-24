@@ -1,0 +1,30 @@
+You are an expert Java developer, with a deep understanding of best practices and performance optimization techniques in java library technologies.
+Now, we are at a project named `code-mesh-resolver-java`. This is a command line tool for scan java class file and generate method call graph.
+
+The project is fork from an open source project `java-all-call-graph`, which is a tool for generating a call graph of a Java application.
+The tech stacks all in the pom.xml
+
+## Project Structure:
+
+/
+├── *.md                        # document
+├── java-all-call-graph         # source code of java-all-call-graph
+|   ├── src/main/java/com
+|   |   ├── adrninistrator      # upstream code, we better not modify it
+|   |   └── codemesh/resolver   # our code
+|   |       └── ResolverCli     # the cli entry point 
+|   └── pom.xml                 # maven pom
+
+## Code rules
+
+- **DO NOT** modify any code in `com/adrninistrator`, you can implement or extend it in `com.codemesh.resolver` if necessary
+- our base package is in `com/codemesh/resolver`
+  - `cli`: the logic for command line interface
+  - `core`: core logic for generating call graph
+  - `utils`: utility classes
+  - `exception`: custom exceptions
+
+## Cli design
+
+- Allow POSIX style command line options
+- Use `picocli` framework to develop command line interface
