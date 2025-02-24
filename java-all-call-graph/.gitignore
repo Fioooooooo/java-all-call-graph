@@ -17,3 +17,4 @@ src/test/resources/_jacg_*
 src/test/resources/_javacg2_*
 src/test/resources/ogm.properties
 runlocal/
+.java-version
