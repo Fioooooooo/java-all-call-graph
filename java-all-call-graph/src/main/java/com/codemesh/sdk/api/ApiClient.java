@@ -1,7 +1,7 @@
 package com.codemesh.sdk.api;
 
 import com.codemesh.sdk.CodeMeshQueue;
-import com.codemesh.sdk.request.CodeMeshRequest;
+import com.codemesh.sdk.entity.CodeMeshRequest;
 
 /**
  * API 客户端接口

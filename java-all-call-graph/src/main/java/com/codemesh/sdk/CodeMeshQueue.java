@@ -5,8 +5,8 @@ import com.codemesh.sdk.api.CodeMeshApi;
 import com.codemesh.sdk.config.CodeMeshConfig;
 import com.codemesh.sdk.metrics.CodeMeshMetrics;
 import com.codemesh.sdk.queue.MessageQueue;
-import com.codemesh.sdk.request.CodeMeshRequest;
-import com.codemesh.sdk.request.TaskStatusRequest;
+import com.codemesh.sdk.entity.CodeMeshRequest;
+import com.codemesh.sdk.entity.TaskStatusRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

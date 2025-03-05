@@ -1,4 +1,4 @@
-package com.codemesh.sdk.request;
+package com.codemesh.sdk.entity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

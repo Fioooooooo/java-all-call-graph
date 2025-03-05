@@ -3,32 +3,22 @@ package com.codemesh.sdk.api;
 import com.codemesh.sdk.CodeMeshQueue;
 import com.codemesh.sdk.config.CodeMeshConfig;
 import com.codemesh.sdk.metrics.CodeMeshMetrics;
-import com.codemesh.sdk.request.CodeMeshRequest;
-import com.codemesh.sdk.request.CodeMeshResponse;
+import com.codemesh.sdk.entity.CodeMeshRequest;
+import com.codemesh.sdk.entity.CodeMeshResponse;
 import com.codemesh.sdk.util.HttpClientUtil;
 import com.codemesh.sdk.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.config.ConnectionConfig;
-import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.apache.hc.core5.http.message.BasicHeader;
-import org.apache.hc.core5.util.Timeout;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Fio
@@ -61,13 +51,13 @@ public class CodeMeshApi implements ApiClient {
     }
 
     private Map<CodeMeshQueue.Event, String> initApiMap() {
-        ApiConstant.setApiPrefix(config.getApiBaseUrl());
+        ApiUrl.setApiPrefix(config.getApiBaseUrl());
 
         Map<CodeMeshQueue.Event, String> apiMap = new HashMap<>();
-        apiMap.put(CodeMeshQueue.Event.UPDATE_TASK_STATUS, ApiConstant.getFullUrl(ApiConstant.UPDATE_TASK_STATUS));
-        apiMap.put(CodeMeshQueue.Event.ADD_CALL_CHAIN, ApiConstant.getFullUrl(ApiConstant.ADD_CALL_CHAIN));
-        apiMap.put(CodeMeshQueue.Event.CLEAN_CALL_CHAINS, ApiConstant.getFullUrl(ApiConstant.CLEAN_CALL_CHAINS));
-        apiMap.put(CodeMeshQueue.Event.LOG_REPORT, ApiConstant.getFullUrl(ApiConstant.LOG_REPORT));
+        apiMap.put(CodeMeshQueue.Event.UPDATE_TASK_STATUS, ApiUrl.getFullUrl(ApiUrl.UPDATE_TASK_STATUS));
+        apiMap.put(CodeMeshQueue.Event.ADD_CALL_CHAIN, ApiUrl.getFullUrl(ApiUrl.ADD_CALL_CHAIN));
+        apiMap.put(CodeMeshQueue.Event.CLEAN_CALL_CHAINS, ApiUrl.getFullUrl(ApiUrl.CLEAN_CALL_CHAINS));
+        apiMap.put(CodeMeshQueue.Event.LOG_REPORT, ApiUrl.getFullUrl(ApiUrl.LOG_REPORT));
         return apiMap;
     }
 

@@ -1,7 +1,7 @@
 package com.codemesh.sdk.queue;
 
 import com.codemesh.sdk.CodeMeshQueue;
-import com.codemesh.sdk.request.CodeMeshRequest;
+import com.codemesh.sdk.entity.CodeMeshRequest;
 
 /**
  * 消息队列接口

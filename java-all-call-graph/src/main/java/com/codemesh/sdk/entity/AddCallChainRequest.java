@@ -1,4 +1,4 @@
-package com.codemesh.sdk.request;
+package com.codemesh.sdk.entity;
 
 import lombok.Builder;
 import lombok.Data;
@@ -95,7 +95,8 @@ public class AddCallChainRequest extends CodeMeshRequest {
     /**
      * 调用类型（如方法调用、类实例化等）
      */
-    private String callType;
+    @Builder.Default
+    private String callType = "direct";
 
     /**
      * 调用上下文

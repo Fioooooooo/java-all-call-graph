@@ -1,10 +1,12 @@
-package com.codemesh.sdk.request;
+package com.codemesh.sdk.entity;
 
+import com.codemesh.resolver.util.ThreadLocalUtil;
 import com.codemesh.sdk.CodeMeshQueue;
 import com.codemesh.sdk.util.JsonUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Data;
+import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 
@@ -13,7 +15,7 @@ import java.io.Serializable;
  * @date 2025/3/4
  */
 @Data
-@Builder
+@SuperBuilder
 public class CodeMeshRequest implements Serializable {
 
     private static final long serialVersionUID = 6424880880797663631L;
@@ -21,12 +23,14 @@ public class CodeMeshRequest implements Serializable {
     /**
      * workspace ID
      */
-    private Long workspaceId;
+    @Builder.Default
+    private Long workspaceId = ThreadLocalUtil.getWorkspaceId();
 
     /**
      * project ID
      */
-    private Long projectId;
+    @Builder.Default
+    private Long projectId = ThreadLocalUtil.getProjectId();
 
     /**
      * request name for sdk

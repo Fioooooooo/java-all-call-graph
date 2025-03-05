@@ -4,9 +4,7 @@ package com.codemesh.sdk.api;
  * @author Fio
  * @date 2025/3/4
  */
-public class ApiConstant {
-
-    public static final String API_VERSION = "0.0.1";
+public class ApiUrl {
 
     private static String API_PREFIX = "http://127.0.0.1:7071/openApi";
 
