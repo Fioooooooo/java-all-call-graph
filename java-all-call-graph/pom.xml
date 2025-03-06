@@ -16,7 +16,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
-        <java.callgraph.version>3.0.4</java.callgraph.version>
+        <java.callgraph.version>3.0.5</java.callgraph.version>
         <spring.version>5.3.39</spring.version>
         <ant.version>1.10.15</ant.version>
         <commons.lang3.version>3.17.0</commons.lang3.version>
@@ -24,6 +24,7 @@
         <commons.compress.version>1.27.1</commons.compress.version>
         <commons.chain.version>1.2</commons.chain.version>
         <httpclient5.version>5.4.2</httpclient5.version>
+        <commons.collections4.version>4.5.0-M3</commons.collections4.version>
         <druid.version>1.2.15</druid.version>
         <mysql.version>8.4.0</mysql.version>
         <h2.version>2.2.220</h2.version>
@@ -77,6 +78,11 @@
             <groupId>org.apache.httpcomponents.client5</groupId>
             <artifactId>httpclient5</artifactId>
             <version>${httpclient5.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>${commons.collections4.version}</version>
         </dependency>
 
         <!-- Lombok -->

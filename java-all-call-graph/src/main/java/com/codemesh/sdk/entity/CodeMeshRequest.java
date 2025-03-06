@@ -24,13 +24,13 @@ public class CodeMeshRequest implements Serializable {
      * workspace ID
      */
     @Builder.Default
-    private Long workspaceId = ThreadLocalUtil.getWorkspaceId();
+    private String workspaceId = ThreadLocalUtil.getWorkspaceId();
 
     /**
      * project ID
      */
     @Builder.Default
-    private Long projectId = ThreadLocalUtil.getProjectId();
+    private String projectId = ThreadLocalUtil.getProjectId();
 
     /**
      * request name for sdk

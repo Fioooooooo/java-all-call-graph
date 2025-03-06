@@ -33,20 +33,20 @@ public class ThreadLocalUtil {
         return map;
     }
 
-    public static void setWorkspaceId(Long workspaceId) {
+    public static void setWorkspaceId(String workspaceId) {
         getMap().put(GLOBAL_WORKSPACE, workspaceId);
     }
 
-    public static void setProjectId(Long projectId) {
+    public static void setProjectId(String projectId) {
         getMap().put(GLOBAL_PROJECT, projectId);
     }
 
-    public static Long getWorkspaceId() {
-        return (Long) getMap().get(GLOBAL_WORKSPACE);
+    public static String getWorkspaceId() {
+        return (String) getMap().get(GLOBAL_WORKSPACE);
     }
 
-    public static Long getProjectId() {
-        return (Long) getMap().get(GLOBAL_PROJECT);
+    public static String getProjectId() {
+        return (String) getMap().get(GLOBAL_PROJECT);
     }
 
     public static void clear() {
