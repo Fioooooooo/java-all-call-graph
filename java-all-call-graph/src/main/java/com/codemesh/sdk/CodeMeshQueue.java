@@ -3,6 +3,7 @@ package com.codemesh.sdk;
 import com.codemesh.sdk.api.ApiClient;
 import com.codemesh.sdk.api.CodeMeshApi;
 import com.codemesh.sdk.config.CodeMeshConfig;
+import com.codemesh.sdk.entity.CleanCallChainsRequest;
 import com.codemesh.sdk.metrics.CodeMeshMetrics;
 import com.codemesh.sdk.queue.MessageQueue;
 import com.codemesh.sdk.entity.CodeMeshRequest;
@@ -40,13 +41,13 @@ public class CodeMeshQueue implements MessageQueue {
         this.apiClient = apiClient;
         this.messageQueue = new ArrayBlockingQueue<>(config.getQueueCapacity());
         this.countErrorApi = new AtomicInteger(0);
-        
+
         // 创建线程池
         this.messagePool = Executors.newFixedThreadPool(
                 config.getConsumerThreads(),
                 new ThreadFactory() {
                     private final AtomicInteger threadNumber = new AtomicInteger(1);
-                    
+
                     @Override
                     public Thread newThread(Runnable r) {
                         Thread t = new Thread(r, "codemesh-worker-" + threadNumber.getAndIncrement());
@@ -55,11 +56,11 @@ public class CodeMeshQueue implements MessageQueue {
                     }
                 }
         );
-        
+
         // 创建消费者线程
         this.consumerThread = new Thread(this::consume, "codemesh-consumer");
         this.consumerThread.setDaemon(true);
-        
+
         // 添加关闭钩子
         Runtime.getRuntime().addShutdownHook(new Thread(this::finish, "codemesh-shutdown-hook"));
     }
@@ -97,14 +98,15 @@ public class CodeMeshQueue implements MessageQueue {
             log.info("CodeMeshQueue already started");
             return;
         }
-        
+
         log.info("Starting CodeMeshQueue with config: {}", config);
         this.start = true;
         updateTaskStatus(true);
+        cleanCallChains();
 
         // 启动消费者线程
         this.consumerThread.start();
-        
+
         log.info("CodeMeshQueue started");
     }
 
@@ -114,31 +116,31 @@ public class CodeMeshQueue implements MessageQueue {
             log.info("CodeMeshQueue already stopped");
             return;
         }
-        
+
         log.info("Stopping CodeMeshQueue");
         this.start = false;
-        
+
         // 等待队列中的消息处理完成
         try {
             log.info("Waiting for queue to drain, current size: {}", messageQueue.size());
             while (!messageQueue.isEmpty() && !Thread.currentThread().isInterrupted()) {
                 Thread.sleep(100);
             }
-            
+
             // 关闭线程池
             messagePool.shutdown();
             if (!messagePool.awaitTermination(30, TimeUnit.SECONDS)) {
                 log.warn("MessagePool did not terminate in time, forcing shutdown");
                 messagePool.shutdownNow();
             }
-            
+
             log.info("MessagePool shutdown complete");
         } catch (InterruptedException e) {
             log.warn("Interrupted while waiting for queue to drain", e);
             messagePool.shutdownNow();
             Thread.currentThread().interrupt();
         }
-        
+
         updateTaskStatus(false);
         log.info("CodeMeshQueue stopped");
     }
@@ -149,7 +151,7 @@ public class CodeMeshQueue implements MessageQueue {
             log.warn("Attempting to put message when queue is not started, event: {}", event);
             return;
         }
-        
+
         QueueMessage message = new QueueMessage(event, request);
         try {
             boolean offered = messageQueue.offer(message, 1, TimeUnit.SECONDS);
@@ -210,30 +212,30 @@ public class CodeMeshQueue implements MessageQueue {
         int retryCount = 0;
         boolean success = false;
         Exception lastException = null;
-        
+
         while (retryCount <= config.getMaxRetryCount() && !success) {
             try {
                 if (retryCount > 0) {
                     CodeMeshMetrics.INSTANCE.recordRetry();
-                    log.info("Retrying request for event {}, attempt {}/{}", 
+                    log.info("Retrying request for event {}, attempt {}/{}",
                             message.event, retryCount, config.getMaxRetryCount());
-                    
+
                     // 指数退避
                     sleep(config.getRetryIntervalMs() * (1 << (retryCount - 1)));
                 }
-                
+
                 success = apiClient.doRequest(message.request);
                 if (success) {
                     // 重置错误计数
                     countErrorApi.set(0);
                     break;
                 }
-                
+
                 retryCount++;
             } catch (Exception e) {
                 lastException = e;
                 retryCount++;
-                log.warn("Exception during API request for event {}, attempt {}/{}", 
+                log.warn("Exception during API request for event {}, attempt {}/{}",
                         message.event, retryCount, config.getMaxRetryCount());
                 log.warn("Exception is", e);
             }
@@ -262,11 +264,11 @@ public class CodeMeshQueue implements MessageQueue {
                 ? TaskStatusRequest.StatusEnum.START
                 : TaskStatusRequest.StatusEnum.FINISH;
 
-        TaskStatusRequest statusRequest = TaskStatusRequest.builder().status(status).build();
-        statusRequest.setRequestEvent(Event.UPDATE_TASK_STATUS);
-        
+        TaskStatusRequest request = TaskStatusRequest.builder()
+                .status(status).requestEvent(Event.UPDATE_TASK_STATUS).build();
+
         try {
-            boolean success = apiClient.doRequest(statusRequest);
+            boolean success = apiClient.doRequest(request);
             if (!success) {
                 log.warn("Failed to update task status to {}", status);
             }
@@ -275,10 +277,23 @@ public class CodeMeshQueue implements MessageQueue {
         }
     }
 
+    private void cleanCallChains() {
+        CleanCallChainsRequest request = CleanCallChainsRequest.builder()
+                .requestEvent(Event.CLEAN_CALL_CHAINS).build();
+
+        boolean success = apiClient.doRequest(request);
+        if (success) {
+            log.info("Clean all existed call chains successfully");
+        }
+
+        throw new RuntimeException("Clean existed call chains failed.");
+    }
+
     private void sleep(int mills) {
         try {
             TimeUnit.MILLISECONDS.sleep(mills);
-        } catch (Exception ignore) {}
+        } catch (Exception ignore) {
+        }
     }
 
     @RequiredArgsConstructor

@@ -1,6 +1,6 @@
 package com.codemesh.sdk.entity;
 
-import com.codemesh.resolver.util.ThreadLocalUtil;
+import com.codemesh.sdk.util.ThreadLocalUtil;
 import com.codemesh.sdk.CodeMeshQueue;
 import com.codemesh.sdk.util.JsonUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;

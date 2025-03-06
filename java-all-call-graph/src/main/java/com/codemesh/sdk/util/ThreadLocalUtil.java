@@ -1,4 +1,4 @@
-package com.codemesh.resolver.util;
+package com.codemesh.sdk.util;
 
 import com.alibaba.ttl.TransmittableThreadLocal;
 
