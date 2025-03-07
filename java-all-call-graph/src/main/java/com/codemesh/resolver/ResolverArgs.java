@@ -23,7 +23,10 @@ public class ResolverArgs {
     @Option(names = {"--jar-path"}, description = "解析的 jar 目录，或 jar 包路径")
     private String jarPath;
 
-    @Option(names = {"--allowed-prefix"}, description = "解析的类或方法前缀，使用英文逗号分隔")
-    private List<String> allowedPrefix;
+    @Option(names = {"--allowed-class-prefix"}, description = "解析的类前缀，使用英文逗号分隔")
+    private List<String> allowedClassPrefix;
+
+    @Option(names = {"--allowed-method-prefix"}, description = "解析的方法前缀，使用英文逗号分隔")
+    private List<String> allowedMethodPrefix;
 
 }

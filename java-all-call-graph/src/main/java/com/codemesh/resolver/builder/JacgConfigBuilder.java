@@ -80,11 +80,24 @@ public class JacgConfigBuilder {
         // 解析的 jar 目录
         javaCG2ConfigureWrapper.setOtherConfigList(JavaCG2OtherConfigFileUseListEnum.OCFULE_JAR_DIR, resolverArgs.getJarPath());
 
-        // 指定解析的 class
+        // 指定解析范围
         // 语法文档：https://github.com/Adrninistrator/java-callgraph2/blob/main/src/main/resources/el_example.md
-        javaCG2ConfigureWrapper.setElConfigText(JavaCG2ElConfigEnum.ECE_PARSE_IGNORE_METHOD_CALL_ER_EE,
-                "!(string.startsWith(er_full_method, 'com.test')) || !(string.startsWith(ee_full_method, 'com.test'))"
-        );
+        if (CollectionUtils.isNotEmpty(resolverArgs.getAllowedClassPrefix())) {
+            String classPrefix = resolverArgs.getAllowedClassPrefix().stream()
+                    .map(item -> String.format("'%s'", item)).collect(Collectors.joining(", "));
+            javaCG2ConfigureWrapper.setElConfigText(JavaCG2ElConfigEnum.ECE_PARSE_IGNORE_CLASS,
+                    "!(string.startsWithAny(class_name, " + classPrefix + "))" +
+                            " || !(string.startsWithAny(package_name, "+classPrefix+"))"
+            );
+        }
+
+        if (CollectionUtils.isNotEmpty(resolverArgs.getAllowedMethodPrefix())) {
+            String methodPrefix = resolverArgs.getAllowedMethodPrefix().stream()
+                    .map(item -> String.format("'%s'", item)).collect(Collectors.joining(", "));
+            javaCG2ConfigureWrapper.setElConfigText(JavaCG2ElConfigEnum.ECE_PARSE_IGNORE_METHOD,
+                    "!(string.startsWithAny(method_name, " + methodPrefix + "))"
+            );
+        }
 
         return javaCG2ConfigureWrapper;
     }
