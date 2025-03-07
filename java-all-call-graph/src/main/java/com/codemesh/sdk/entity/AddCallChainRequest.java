@@ -44,12 +44,7 @@ public class AddCallChainRequest extends CodeMeshRequest {
     /**
      * 调用者开始行
      */
-    private Integer callerStartLine;
-
-    /**
-     * 调用者结束行
-     */
-    private Integer callerEndLine;
+    private Integer callerLineNumber;
 
     /**
      * 被调用者文件路径/全限定名
@@ -75,16 +70,6 @@ public class AddCallChainRequest extends CodeMeshRequest {
      * 被调用者方法签名
      */
     private String calleeMethodSignature;
-
-    /**
-     * 被调用者开始行
-     */
-    private Integer calleeStartLine;
-
-    /**
-     * 被调用者结束行
-     */
-    private Integer calleeEndLine;
 
     /**
      * 编程语言

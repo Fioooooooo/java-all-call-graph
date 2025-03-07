@@ -42,15 +42,16 @@ public class JacgConfigBuilder {
         ConfigureWrapper configureWrapper = new ConfigureWrapper();
         configureWrapper.setMainConfig(ConfigKeyEnum.CKE_APP_NAME, resolverArgs.getProjectId());
         configureWrapper.setMainConfig(ConfigKeyEnum.CKE_CALL_GRAPH_OUTPUT_DETAIL, OutputDetailEnum.ODE_1.getDetail());
-        configureWrapper.setMainConfig(ConfigKeyEnum.CKE_THREAD_NUM, "20");
+        configureWrapper.setMainConfig(ConfigKeyEnum.CKE_THREAD_NUM, JacgConfigConstant.JACG_THREAD_NUMBER);
         configureWrapper.setMainConfig(ConfigKeyEnum.CKE_IGNORE_DUP_CALLEE_IN_ONE_CALLER, Boolean.FALSE.toString());
-        configureWrapper.setMainConfig(ConfigKeyEnum.CKE_DB_INSERT_BATCH_SIZE, "1000");
+        configureWrapper.setMainConfig(ConfigKeyEnum.CKE_DB_INSERT_BATCH_SIZE, JacgConfigConstant.JACG_DB_INSERT_BATCH);
         configureWrapper.setMainConfig(ConfigKeyEnum.CKE_CHECK_JAR_FILE_UPDATED, Boolean.TRUE.toString());
         configureWrapper.setMainConfig(ConfigKeyEnum.CKE_OUTPUT_ROOT_PATH, "");
 
         // H2
+        configureWrapper.setMainConfig(ConfigKeyEnum.CKE_DROP_OR_TRUNCATE_TABLE, Boolean.FALSE.toString());
         configureWrapper.setMainConfig(ConfigDbKeyEnum.CDKE_DB_USE_H2, Boolean.TRUE.toString());
-        configureWrapper.setMainConfig(ConfigDbKeyEnum.CDKE_DB_H2_FILE_PATH, "./build/jacg_h2db_rbc");
+        configureWrapper.setMainConfig(ConfigDbKeyEnum.CDKE_DB_H2_FILE_PATH, JacgConfigConstant.H2_PATH);
 
         configureWrapper.setOtherConfigList(OtherConfigFileUseListEnum.OCFULE_FIND_STACK_KEYWORD_4EE,
                 JACGConstants.CALLEE_FLAG_ENTRY_NO_TAB,
@@ -85,17 +86,15 @@ public class JacgConfigBuilder {
         if (CollectionUtils.isNotEmpty(resolverArgs.getAllowedClassPrefix())) {
             String classPrefix = resolverArgs.getAllowedClassPrefix().stream()
                     .map(item -> String.format("'%s'", item)).collect(Collectors.joining(", "));
+
             javaCG2ConfigureWrapper.setElConfigText(JavaCG2ElConfigEnum.ECE_PARSE_IGNORE_CLASS,
                     "!(string.startsWithAny(class_name, " + classPrefix + "))" +
-                            " || !(string.startsWithAny(package_name, "+classPrefix+"))"
+                            " || !(string.startsWithAny(package_name, " + classPrefix + "))"
             );
-        }
 
-        if (CollectionUtils.isNotEmpty(resolverArgs.getAllowedMethodPrefix())) {
-            String methodPrefix = resolverArgs.getAllowedMethodPrefix().stream()
-                    .map(item -> String.format("'%s'", item)).collect(Collectors.joining(", "));
-            javaCG2ConfigureWrapper.setElConfigText(JavaCG2ElConfigEnum.ECE_PARSE_IGNORE_METHOD,
-                    "!(string.startsWithAny(method_name, " + methodPrefix + "))"
+            javaCG2ConfigureWrapper.setElConfigText(JavaCG2ElConfigEnum.ECE_PARSE_IGNORE_METHOD_CALL_ER_EE,
+                    "!(string.startsWithAny(er_class_name, " + classPrefix + "))" +
+                            " || !(string.startsWithAny(ee_class_name, " + classPrefix + "))"
             );
         }
 

@@ -4,18 +4,20 @@ import com.codemesh.sdk.api.ApiClient;
 import com.codemesh.sdk.api.CodeMeshApi;
 import com.codemesh.sdk.config.CodeMeshConfig;
 import com.codemesh.sdk.entity.CleanCallChainsRequest;
-import com.codemesh.sdk.metrics.CodeMeshMetrics;
-import com.codemesh.sdk.queue.MessageQueue;
 import com.codemesh.sdk.entity.CodeMeshRequest;
 import com.codemesh.sdk.entity.TaskStatusRequest;
+import com.codemesh.sdk.metrics.CodeMeshMetrics;
+import com.codemesh.sdk.queue.MessageQueue;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -33,6 +35,7 @@ public class CodeMeshQueue implements MessageQueue {
     private final ExecutorService messagePool;
     private final AtomicInteger countErrorApi;
     private final Thread consumerThread;
+    private final AtomicBoolean consumerThreadHasError = new AtomicBoolean(false);
 
     private volatile boolean start = false;
 
@@ -43,23 +46,11 @@ public class CodeMeshQueue implements MessageQueue {
         this.countErrorApi = new AtomicInteger(0);
 
         // 创建线程池
-        this.messagePool = Executors.newFixedThreadPool(
-                config.getConsumerThreads(),
-                new ThreadFactory() {
-                    private final AtomicInteger threadNumber = new AtomicInteger(1);
-
-                    @Override
-                    public Thread newThread(Runnable r) {
-                        Thread t = new Thread(r, "codemesh-worker-" + threadNumber.getAndIncrement());
-                        t.setDaemon(true);
-                        return t;
-                    }
-                }
-        );
+        this.messagePool = createThreadPool(config.getConsumerThreads());
 
         // 创建消费者线程
         this.consumerThread = new Thread(this::consume, "codemesh-consumer");
-        this.consumerThread.setDaemon(true);
+        this.consumerThread.setDaemon(false);
 
         // 添加关闭钩子
         Runtime.getRuntime().addShutdownHook(new Thread(this::finish, "codemesh-shutdown-hook"));
@@ -92,6 +83,34 @@ public class CodeMeshQueue implements MessageQueue {
         return INSTANCE;
     }
 
+    private ExecutorService createThreadPool(int threadNumber) {
+        return new ThreadPoolExecutor(
+                threadNumber, threadNumber,
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(),
+                new ThreadFactory() {
+                    private final AtomicInteger threadNumber = new AtomicInteger(1);
+
+                    @Override
+                    public Thread newThread(Runnable r) {
+                        Thread t = new Thread(r, "codemesh-worker-" + threadNumber.getAndIncrement());
+                        t.setDaemon(false);
+                        return t;
+                    }
+                }
+        ) {
+            @Override
+            protected void afterExecute(Runnable r, Throwable t) {
+                super.afterExecute(r, t);
+                if (t != null && consumerThreadHasError.compareAndSet(false, true)) {
+                    // 中断消费线程
+                    consumerThread.interrupt();
+                    ((ThreadPoolExecutor) messagePool).getQueue().clear();
+                }
+            }
+        };
+    }
+
     @Override
     public void start() {
         if (this.start) {
@@ -112,6 +131,10 @@ public class CodeMeshQueue implements MessageQueue {
 
     @Override
     public void finish() {
+        forceFinish(false);
+    }
+
+    private void forceFinish(boolean force) {
         if (!this.start) {
             log.info("CodeMeshQueue already stopped");
             return;
@@ -120,29 +143,32 @@ public class CodeMeshQueue implements MessageQueue {
         log.info("Stopping CodeMeshQueue");
         this.start = false;
 
-        // 等待队列中的消息处理完成
-        try {
-            log.info("Waiting for queue to drain, current size: {}", messageQueue.size());
-            while (!messageQueue.isEmpty() && !Thread.currentThread().isInterrupted()) {
-                Thread.sleep(100);
-            }
+        if (!force) {
+            // 等待队列中的消息处理完成
+            try {
+                log.info("Waiting for queue to drain, current size: {}", messageQueue.size());
+                while (!messageQueue.isEmpty() && !Thread.currentThread().isInterrupted()) {
+                    sleep(100);
+                }
 
-            // 关闭线程池
-            messagePool.shutdown();
-            if (!messagePool.awaitTermination(30, TimeUnit.SECONDS)) {
-                log.warn("MessagePool did not terminate in time, forcing shutdown");
+                // 关闭线程池
+                messagePool.shutdown();
+                if (!messagePool.awaitTermination(30, TimeUnit.SECONDS)) {
+                    log.warn("MessagePool did not terminate in time, forcing shutdown");
+                    messagePool.shutdownNow();
+                }
+
+                log.info("MessagePool shutdown complete");
+            } catch (InterruptedException e) {
+                log.warn("Interrupted while waiting for queue to drain", e);
                 messagePool.shutdownNow();
+                Thread.currentThread().interrupt();
             }
-
-            log.info("MessagePool shutdown complete");
-        } catch (InterruptedException e) {
-            log.warn("Interrupted while waiting for queue to drain", e);
-            messagePool.shutdownNow();
-            Thread.currentThread().interrupt();
         }
 
         updateTaskStatus(false);
         log.info("CodeMeshQueue stopped");
+        CodeMeshMetrics.INSTANCE.logMetrics();
     }
 
     @Override
@@ -181,6 +207,10 @@ public class CodeMeshQueue implements MessageQueue {
         log.info("Consumer thread started");
         while (start || !messageQueue.isEmpty()) {
             try {
+                if (consumerThreadHasError.get()) {
+                    throw new RuntimeException("Task execution failed in messagePool.");
+                }
+
                 QueueMessage message = messageQueue.poll(100, TimeUnit.MILLISECONDS);
                 if (message != null) {
                     CodeMeshMetrics.INSTANCE.updateQueueSize(messageQueue.size());
@@ -193,7 +223,7 @@ public class CodeMeshQueue implements MessageQueue {
             } catch (Exception e) {
                 log.error("Exception when consuming message", e);
                 if (start) {
-                    finish();
+                    forceFinish(true);
                     throw new RuntimeException("Exit when queue message consume exception", e);
                 }
             }
@@ -267,14 +297,14 @@ public class CodeMeshQueue implements MessageQueue {
         TaskStatusRequest request = TaskStatusRequest.builder()
                 .status(status).requestEvent(Event.UPDATE_TASK_STATUS).build();
 
-        try {
-            boolean success = apiClient.doRequest(request);
-            if (!success) {
-                log.warn("Failed to update task status to {}", status);
-            }
-        } catch (Exception e) {
-            log.error("Exception when updating task status to {}", status, e);
+        boolean success = apiClient.doRequest(request);
+        if (success) {
+            log.info("Updated task status to {}", status);
+            return;
         }
+
+        log.warn("Failed to update task status to {}", status);
+        throw new RuntimeException("Failed to update task status to " + status);
     }
 
     private void cleanCallChains() {
@@ -284,6 +314,7 @@ public class CodeMeshQueue implements MessageQueue {
         boolean success = apiClient.doRequest(request);
         if (success) {
             log.info("Clean all existed call chains successfully");
+            return;
         }
 
         throw new RuntimeException("Clean existed call chains failed.");

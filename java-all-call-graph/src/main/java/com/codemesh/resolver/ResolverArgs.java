@@ -26,7 +26,4 @@ public class ResolverArgs {
     @Option(names = {"--allowed-class-prefix"}, description = "解析的类前缀，使用英文逗号分隔")
     private List<String> allowedClassPrefix;
 
-    @Option(names = {"--allowed-method-prefix"}, description = "解析的方法前缀，使用英文逗号分隔")
-    private List<String> allowedMethodPrefix;
-
 }
