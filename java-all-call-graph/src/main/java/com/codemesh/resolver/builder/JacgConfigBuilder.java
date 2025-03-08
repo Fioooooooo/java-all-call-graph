@@ -40,7 +40,7 @@ public class JacgConfigBuilder {
     public ConfigureWrapper createConfigureWrapper() {
         // java-all-call-graph的配置
         ConfigureWrapper configureWrapper = new ConfigureWrapper();
-        configureWrapper.setMainConfig(ConfigKeyEnum.CKE_APP_NAME, resolverArgs.getProjectId());
+        configureWrapper.setMainConfig(ConfigKeyEnum.CKE_APP_NAME, formatAppName(resolverArgs.getProjectId()));
         configureWrapper.setMainConfig(ConfigKeyEnum.CKE_CALL_GRAPH_OUTPUT_DETAIL, OutputDetailEnum.ODE_1.getDetail());
         configureWrapper.setMainConfig(ConfigKeyEnum.CKE_THREAD_NUM, JacgConfigConstant.JACG_THREAD_NUMBER);
         configureWrapper.setMainConfig(ConfigKeyEnum.CKE_IGNORE_DUP_CALLEE_IN_ONE_CALLER, Boolean.FALSE.toString());
@@ -99,5 +99,9 @@ public class JacgConfigBuilder {
         }
 
         return javaCG2ConfigureWrapper;
+    }
+
+    private String formatAppName(String projectId) {
+        return projectId.replace("-", "_");
     }
 }
