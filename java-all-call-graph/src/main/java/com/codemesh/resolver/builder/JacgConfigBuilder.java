@@ -6,19 +6,15 @@ import com.adrninistrator.jacg.conf.ConfigureWrapper;
 import com.adrninistrator.jacg.conf.enums.ConfigDbKeyEnum;
 import com.adrninistrator.jacg.conf.enums.ConfigKeyEnum;
 import com.adrninistrator.jacg.conf.enums.OtherConfigFileUseListEnum;
-import com.adrninistrator.jacg.conf.enums.OtherConfigFileUseSetEnum;
 import com.adrninistrator.javacg2.common.JavaCG2CommonNameConstants;
 import com.adrninistrator.javacg2.common.JavaCG2Constants;
 import com.adrninistrator.javacg2.conf.JavaCG2ConfigureWrapper;
 import com.adrninistrator.javacg2.conf.enums.JavaCG2ConfigKeyEnum;
 import com.adrninistrator.javacg2.conf.enums.JavaCG2OtherConfigFileUseListEnum;
-import com.adrninistrator.javacg2.conf.enums.JavaCG2OtherConfigFileUseSetEnum;
-import com.adrninistrator.javacg2.el.enums.JavaCG2ElAllowedVariableEnum;
 import com.adrninistrator.javacg2.el.enums.JavaCG2ElConfigEnum;
-import com.codemesh.resolver.ResolverArgs;
+import com.codemesh.resolver.cli.ResolverArgs;
 import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.HashSet;
 import java.util.stream.Collectors;
 
 /**

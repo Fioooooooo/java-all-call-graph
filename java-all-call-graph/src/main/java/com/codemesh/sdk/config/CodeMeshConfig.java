@@ -4,10 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+
 
 /**
  * CodeMesh SDK 配置类
@@ -29,7 +26,7 @@ public class CodeMeshConfig {
      * API 版本
      */
     @Builder.Default
-    private String apiVersion = "0.0.1";
+    private String apiVersion = CodeMeshVersion.getVersion();
 
     /**
      * 队列容量

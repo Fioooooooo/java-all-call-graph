@@ -5,6 +5,7 @@ import com.adrninistrator.jacg.dto.writedb.WriteDbData4MethodCall;
 import com.adrninistrator.jacg.runner.RunnerWriteDb;
 import com.adrninistrator.javacg2.conf.JavaCG2ConfigureWrapper;
 import com.codemesh.resolver.builder.JacgConfigBuilder;
+import com.codemesh.resolver.cli.ResolverArgs;
 import com.codemesh.resolver.converter.ResolverConverter;
 import com.codemesh.resolver.h2.H2Helper;
 import com.codemesh.sdk.CodeMeshQueue;

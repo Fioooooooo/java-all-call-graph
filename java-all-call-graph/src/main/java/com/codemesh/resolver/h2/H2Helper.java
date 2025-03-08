@@ -9,7 +9,7 @@ import com.adrninistrator.jacg.dboper.DbInitializer;
 import com.adrninistrator.jacg.dboper.DbOperator;
 import com.adrninistrator.jacg.dto.writedb.WriteDbData4MethodCall;
 import com.adrninistrator.jacg.util.JACGSqlUtil;
-import com.codemesh.resolver.ResolverArgs;
+import com.codemesh.resolver.cli.ResolverArgs;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;

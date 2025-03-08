@@ -6,10 +6,12 @@
 
     <groupId>com.codemesh</groupId>
     <artifactId>code-mesh-resolver-java</artifactId>
-    <version>1.0.0</version>
+    <version>${app.version}</version>
     <description>code-mesh-resolver-java</description>
 
     <properties>
+        <!-- 项目版本号，用于同步到所有需要的地方 -->
+        <app.version>0.0.1</app.version>
         <upstream.version>3.0.2</upstream.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -280,6 +282,15 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>version.properties</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
