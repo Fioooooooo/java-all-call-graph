@@ -282,16 +282,18 @@
     </dependencies>
 
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>version.properties</include>
-                </includes>
-            </resource>
-        </resources>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/test/**</exclude>
+                    </excludes>
+                    <skipIfEmpty>true</skipIfEmpty>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -313,8 +315,7 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
-            
-            <!-- Assembly plugin for creating executable jar -->
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -325,23 +326,18 @@
                             <mainClass>com.codemesh.resolver.ResolverCli</mainClass>
                             <addClasspath>true</addClasspath>
                         </manifest>
+                        <manifestEntries>
+                            <Implementation-Version>${project.version}</Implementation-Version>
+                            <Implementation-Title>${project.name}</Implementation-Title>
+                            <Built-By>CodeMesh</Built-By>
+                            <Build-Time>${maven.build.timestamp}</Build-Time>
+                        </manifestEntries>
                     </archive>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
                     <finalName>${project.artifactId}-${project.version}</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
-                    
-                    <!-- 
-                    <filters>
-                        <filter>
-                            <artifact>com.codemesh:code-mesh-resolver-java</artifact>
-                            <excludes>
-                                <exclude>src/test/**</exclude>
-                            </excludes>
-                        </filter>
-                    </filters>
-                    -->
                 </configuration>
                 <executions>
                     <execution>
@@ -360,6 +356,22 @@
                 <version>${maven.resources.plugin.version}</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
+                    <resources>
+                        <resource>
+                            <directory>src/main/resources</directory>
+                            <filtering>false</filtering>
+                            <excludes>
+                                <exclude>version.properties</exclude>
+                            </excludes>
+                        </resource>
+                        <resource>
+                            <directory>src/main/resources</directory>
+                            <filtering>true</filtering>
+                            <includes>
+                                <include>version.properties</include>
+                            </includes>
+                        </resource>
+                    </resources>
                 </configuration>
             </plugin>
         </plugins>
